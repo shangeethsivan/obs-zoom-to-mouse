@@ -125,7 +125,10 @@ When enabling `Set manual source position`, you can select from common device ha
 You can also customize any of these values manually.
 
 ### macOS Banner Notifications & Sound Toggle
-On macOS, the script triggers native silent macOS banner notifications when zooming in (`Zoomed In 2.0x`) and zooming out (`Zoomed Out`) without making noise by default.
+On macOS, the script triggers native silent macOS banner notifications when zooming in (`Zoomed In 2.0x`) and zooming out (`Zoomed Out`) without making noise by default:
+
+![macOS Zoomed In Notification](docs/images/macos-notification-zoomed-in.png)  
+![macOS Zoomed Out Notification](docs/images/macos-notification-zoomed-out.png)
 
 If you prefer audio feedback, you can enable **Enable notification sound** in the script settings panel to play a system chime (`Pop`) when toggling zoom.
 
