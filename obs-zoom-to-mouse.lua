@@ -72,6 +72,7 @@ local use_socket = false
 local socket_port = 0
 local socket_poll = 1000
 local debug_logs = false
+local enable_notification_sound = false
 local is_obs_loaded = false
 local is_script_loaded = false
 
@@ -831,10 +832,12 @@ end
 ---@param message string The message text
 function show_macos_notification(message)
     if ffi.os == "OSX" then
-        -- Play system audio chime ("Pop" sound)
-        os.execute("afplay /System/Library/Sounds/Pop.aiff &")
-        -- Trigger notification banner
-        os.execute("osascript -e 'display notification \"" .. message .. "\" with title \"OBS Zoom\" sound name \"Pop\"' &")
+        if enable_notification_sound then
+            os.execute("afplay /System/Library/Sounds/Pop.aiff &")
+            os.execute("osascript -e 'display notification \"" .. message .. "\" with title \"OBS Zoom\" sound name \"Pop\"' &")
+        else
+            os.execute("osascript -e 'display notification \"" .. message .. "\" with title \"OBS Zoom\"' &")
+        end
     end
 end
 
@@ -1387,6 +1390,10 @@ function script_properties()
     obs.obs_property_set_long_description(help,
         "Click to show help information (via the script log)")
 
+    local sound = obs.obs_properties_add_bool(props, "enable_notification_sound", "Enable notification sound ")
+    obs.obs_property_set_long_description(sound,
+        "When enabled, an audio chime will play when zooming in or out (Disabled by default for quiet operation)")
+
     local debug = obs.obs_properties_add_bool(props, "debug_logs", "Enable debug logging ")
     obs.obs_property_set_long_description(debug,
         "When enabled the script will output diagnostics messages to the script log (useful for debugging/github issues)")
@@ -1457,6 +1464,7 @@ function script_load(settings)
     socket_port = obs.obs_data_get_int(settings, "socket_port")
     socket_poll = obs.obs_data_get_int(settings, "socket_poll")
     debug_logs = obs.obs_data_get_bool(settings, "debug_logs")
+    enable_notification_sound = obs.obs_data_get_bool(settings, "enable_notification_sound")
 
     obs.obs_frontend_add_event_callback(on_frontend_event)
 
@@ -1542,6 +1550,7 @@ function script_defaults(settings)
     obs.obs_data_set_default_int(settings, "socket_port", 12345)
     obs.obs_data_set_default_int(settings, "socket_poll", 10)
     obs.obs_data_set_default_bool(settings, "debug_logs", false)
+    obs.obs_data_set_default_bool(settings, "enable_notification_sound", false)
 end
 
 function script_save(settings)
@@ -1599,6 +1608,7 @@ function script_update(settings)
     socket_port = obs.obs_data_get_int(settings, "socket_port")
     socket_poll = obs.obs_data_get_int(settings, "socket_poll")
     debug_logs = obs.obs_data_get_bool(settings, "debug_logs")
+    enable_notification_sound = obs.obs_data_get_bool(settings, "enable_notification_sound")
 
     -- Only do the expensive refresh if the user selected a new source
     if source_name ~= old_source_name and is_obs_loaded then
